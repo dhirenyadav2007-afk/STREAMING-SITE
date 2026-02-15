@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>STREAMX Watch</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<!-- MOVING DOT BG -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+
+<div class="brand">
+<img src="https://i.pinimg.com/736x/aa/f1/25/aaf12510ed3415e0333124d914254c45.jpg" class="logo-img">
+<h2 class="logo-text">STREAMX</h2>
+</div>
+
+<div class="nav-right">
+<div class="menu-btn" id="menuBtn">&#9776;</div>
+</div>
+
+</nav>
+
+<!-- MOBILE MENU -->
+
+<div class="mobile-menu" id="mobileMenu">
+<a href="#">Home</a>
+<a href="#">Movies</a>
+<a href="#">Series</a>
+<a href="#">Login</a>
+</div>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<!-- MAIN -->
+
+<main class="main-container">
+
+<div class="watch-layout">
+
+<!-- PLAYER -->
+
+<div class="player-box">
+
+<div class="video-wrapper">
+
+<video id="videoPlayer" class="video-player">
+<source src="assets/Hells Paradise - 1 - DUB - 360p.mp4" type="video/mp4">
+<track id="subTrack" kind="subtitles" src="" srclang="en">
+</video>
+
+
+
+<div class="player-controls">
+
+<!-- TIMELINE -->
+<div class="timeline-container">
+<input type="range" id="seekBar" value="0" min="0" max="100">
+</div>
+
+<div class="controls-row">
+
+<div class="left-controls">
+
+<button id="playBtn" onclick="togglePlay()">▶</button>
+
+<span id="timeDisplay">00:00 / 00:00</span>
+
+<input type="range" id="volumeSlider" min="0" max="1" step="0.1">
+
+<button onclick="skipIntro()" class="skip-btn">
+Skip Intro
+</button>
+
+</div>
+
+<div class="right-controls">
+
+<select id="audioTrack" onchange="changeAudio(this.value)">
+<option value="audio_en.mp4">ENG</option>
+<option value="audio_jp.mp4">JPN</option>
+</select>
+
+<select id="subtitleToggle" onchange="toggleSubtitle(this.value)">
+<option value="off">Sub Off</option>
+<option value="sub_en.vtt">ENG</option>
+<option value="sub_hi.vtt">HIN</option>
+</select>
+
+<select onchange="changeSpeed(this.value)">
+<option value="0.5">0.5x</option>
+<option value="1" selected>1x</option>
+<option value="1.25">1.25x</option>
+<option value="1.5">1.5x</option>
+<option value="2">2x</option>
+</select>
+
+
+<button onclick="fullscreen()">⛶</button>
+
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- SIDE PANEL -->
+
+<div class="info-panel">
+
+<h1 class="title">S2 Episode 04 - Torture</h1>
+
+<div class="btn-group">
+<a href="#" class="btn primary">Download</a>
+<a href="#" class="btn">Open VLC</a>
+<a href="#" class="btn">Direct</a>
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+<footer class="footer">
+© 2026 STREAMX
+</footer>
+
+<!-- MENU JS -->
+
+<script>
+
+const menuBtn=document.getElementById("menuBtn");
+const mobileMenu=document.getElementById("mobileMenu");
+const overlay=document.getElementById("menuOverlay");
+
+menuBtn.onclick=()=>{
+mobileMenu.classList.toggle("active");
+overlay.classList.toggle("active");
+}
+
+overlay.onclick=()=>{
+mobileMenu.classList.remove("active");
+overlay.classList.remove("active");
+}
+
+</script>
+
+<!-- PLAYER JS -->
+
+<script>
+
+const video=document.getElementById("videoPlayer");
+const playBtn=document.getElementById("playBtn");
+const seekBar=document.getElementById("seekBar");
+const volumeSlider=document.getElementById("volumeSlider");
+const timeDisplay=document.getElementById("timeDisplay");
+
+video.addEventListener("loadedmetadata",()=>{
+video.volume=0.7;
+volumeSlider.value=0.7;
+});
+
+function togglePlay(){
+
+if(video.paused){
+video.play();
+playBtn.innerHTML="❚❚";
+}
+else{
+video.pause();
+playBtn.innerHTML="▶";
+}
+
+}
+function changeSpeed(rate){
+video.playbackRate = rate;
+}
+video.addEventListener("timeupdate",()=>{
+
+video.addEventListener("play",()=>{
+playBtn.innerHTML="❚❚";
+});
+
+video.addEventListener("pause",()=>{
+playBtn.innerHTML="▶";
+});
+
+if(video.duration){
+seekBar.value=(video.currentTime/video.duration)*100;
+timeDisplay.innerText=
+formatTime(video.currentTime)+" / "+
+formatTime(video.duration);
+}
+});
+
+seekBar.addEventListener("input",()=>{
+video.currentTime=(seekBar.value/100)*video.duration;
+});
+
+volumeSlider.addEventListener("input",()=>{
+video.volume=volumeSlider.value;
+});
+
+function formatTime(time){
+let m=Math.floor(time/60);
+let s=Math.floor(time%60);
+if(s<10)s="0"+s;
+return m+":"+s;
+}
+
+
+
+function fullscreen(){
+video.requestFullscreen();
+}
+
+</script>
+
+<!-- CANVAS DOT BG -->
+
+<script>
+
+const canvas=document.getElementById("bgCanvas");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let dots=[];
+
+for(let i=0;i<80;i++){
+dots.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2+1,
+dx:(Math.random()-0.5)*0.3,
+dy:(Math.random()-0.5)*0.3,
+color:Math.random()>0.5?"rgba(255,0,0,0.4)":"rgba(200,200,200,0.3)"
+});
+}
+
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+dots.forEach(dot=>{
+ctx.beginPath();
+ctx.arc(dot.x,dot.y,dot.r,0,Math.PI*2);
+ctx.fillStyle=dot.color;
+ctx.fill();
+dot.x+=dot.dx;
+dot.y+=dot.dy;
+if(dot.x<0||dot.x>canvas.width)dot.dx*=-1;
+if(dot.y<0||dot.y>canvas.height)dot.dy*=-1;
+});
+requestAnimationFrame(animate);
+}
+
+animate();
+
+</script>
+
+<script>
+
+/* SKIP INTRO */
+
+function skipIntro(){
+video.currentTime += 85;
+}
+
+/* SUBTITLE TOGGLE */
+
+const subTrack=document.getElementById("subTrack");
+
+function toggleSubtitle(src){
+
+if(src==="off"){
+subTrack.mode="disabled";
+return;
+}
+
+subTrack.src=src;
+subTrack.mode="showing";
+}
+
+/* AUDIO TRACK */
+
+function changeAudio(src){
+
+let currentTime=video.currentTime;
+
+video.src=src;
+video.load();
+
+video.addEventListener("loadedmetadata",()=>{
+video.currentTime=currentTime;
+video.play();
+},{once:true});
+}
+
+/* KEYBOARD SHORTCUTS */
+
+document.addEventListener("keydown",(e)=>{
+
+switch(e.key){
+
+case " ":
+e.preventDefault();
+togglePlay();
+break;
+
+case "ArrowRight":
+video.currentTime+=10;
+break;
+
+case "ArrowLeft":
+video.currentTime-=10;
+break;
+
+case "ArrowUp":
+video.volume=Math.min(video.volume+0.1,1);
+break;
+
+case "ArrowDown":
+video.volume=Math.max(video.volume-0.1,0);
+break;
+
+case "f":
+fullscreen();
+break;
+
+case "m":
+video.muted=!video.muted;
+break;
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
